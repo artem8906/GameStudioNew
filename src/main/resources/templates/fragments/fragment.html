@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="sk">
+<head>
+    <meta charset="UTF-8" />
+    <title>GameStudio</title>
+</head>
+
+<body>
+
+<header th:fragment="header">
+   <h1>Welcome to GameStudio</h1>
+
+    <div th:if="${@userController.logged}">
+        Log in as:  <span th:text="${@userController.loggedUser}"/>
+        <a href="/logout">Log out</a>
+    </div>
+    </header>
+
+
+<footer th:fragment="footer">
+    <hr/>
+    Gamestudio ver. TSyst 2002/08. Vyvinuté na <a href="https://kpi.fei.tuke.sk">KPI FEI TUKE</a>
+
+</footer>
+
+</body>
+
+</html>

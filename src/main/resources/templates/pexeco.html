@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="us">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Stefan Korecko" />
+    <link rel="stylesheet"
+          href="/css/mines.css"
+          media="screen" />
+
+
+    <title>GameStudio - Pexeco</title>
+</head>
+<body>
+
+
+<h2>Pexeco</h2>
+
+<div th:if="not ${win}">
+    <h2>Game is playing</h2>
+</div>
+
+
+
+<div class="minesControl">
+
+    <a  class="abutton" href="/pexeco/new">New game</a></div>
+
+
+<div> Remain rounds <span th:text="${countOfround}"></span></div>
+
+<div th:if="${win}">
+    <h2>You win. Your score is <span th:text="${currentScore}"></span></h2>
+</div>
+
+<section>
+    <table class='minefield'>
+        <tr th:each="row: ${pexecoField}">
+            <td th:each="tile: ${row}">
+                <a th:if="${isPlaying}" th:attr="href='/pexeco?row='+${rowStat.index}+'&column='+${tileStat.index}">
+                    <span th:utext="${@pexecoController.getTileText(tile)}"></span>
+                </a>
+
+                <span th:if="not ${isPlaying}" th:text="${@pexecoController.getTileText(tile)}"></span>
+
+            </td>
+        </tr>
+    </table>
+</section>
+
+
+
+
+<div th:if="${@userController.logged}">
+    <form action="/pexeco/comment" method="post">
+        <label for="comment">Comment:</label> <input id="comment" type="text" name = "comment" maxlength="255" required/><br/>
+        <button type="submit">Submit comment </button>
+    </form>
+</div>
+
+<form action="/pexeco/rating" method="post">
+    <label for="rating"> Rating of game: </label>
+    <input id="rating" type="number" min="1" max="5" step="1" name = "rating" required/> <br/>
+    <button type="submit"> Submit rating </button>
+</form>
+
+<div>
+    <table class="scores">
+        <caption>Best scores</caption>
+        <th>Player</th>
+        <th>Score</th>
+        <th>Date</th>
+
+        <tr th:each="score: ${bestScores}">
+            <td th:text="${score.getUsername()}">
+            <td th:text="${score.getPoints()}">
+            <td th:text="${score.getPlayedOn()}">
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div>
+    <table class="scores">
+        <caption>Comments</caption>
+        <th>Player</th>
+        <th>Comment</th>
+        <th>Date</th>
+
+        <tr th:each="comment: ${comments}">
+            <td th:text="${comment.getUsername()}">
+            <td th:text="${comment.getComment()}">
+            <td th:text="${comment.getCommented_on()}">
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div>
+    Average rating is <span th:text="${avgRating}"></span>
+</div>
+
+
+
+</body>
+</html>

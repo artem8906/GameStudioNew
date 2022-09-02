@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html lang="sk"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Stefan Korecko" />
+    <link rel="stylesheet"
+          href="/css/mines.css"
+          media="screen"/>
+</head>
+
+<body>
+<header th:replace="fragments/fragment :: header"/>
+
+<main layout:fragment="content"/>
+
+<footer th:replace="fragments/fragment :: footer"/>
+
+</body>
+</html>

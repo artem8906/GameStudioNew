@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout/layout.html}"
+        lang="us">
+<head>
+    <title>Gamestudio</title>
+</head>
+
+<body>
+<main layout:fragment="content">
+
+    <!--/*@thymesVar id="userController" type="sk.tuke.gamestudio.server.controller.UserController"*/-->
+
+    <form th:if="not ${@userController.logged}" action="/login" method="post">
+        <label for="login">Name: (must start with a letter and no more than 32 symbols)</label> <input id="login" type="text" name="login" pattern="[A-Za-z].?" maxlength="32" required/> <br />
+        <label for="pass">Password: </label> <input id="pass" type="password" name="password" required/> <br />
+        <button type="submit">Log in</button>
+    </form>
+
+
+    <form th:if="not ${@userController.isExist()}" action="/registration/addNewPlayer" method="post">
+
+            <label for="fullName">Full name: (must start with letter and no more than 128 symbols)</label> <input id="fullName" type="text" name="fullName" pattern="[A-Za-z].?" maxlength="128" required/> <br />
+            <br/>
+            <label for="selfEvaluation">Self evaluation: </label> <input id="selfEvaluation" type="number" min="1" max="10" step="1" name = "selfEvaluation" required/> <br/>
+            <br/>
+            <select name="occupationStr">
+                <option th:each="occupation: ${listOccupation}" th:text="${occupation.getOccupation()}" input id="occupationStr"></option>
+            </select><br/>
+            <br/>
+            <select name="countryStr">
+                <option th:each="country: ${listCountry}" th:text="${country.getName()}" input id="countryStr"></option>
+
+            </select><br/>
+
+        <button type="submit">Submit</button>
+
+
+    </form>
+
+
+
+
+    <h2>Games</h2>
+    <ul>
+        <li><a href="/minesweeper">Minesweeper</a></li>
+        <li><a href="/minesweeper/asynch">Minesweeper (asynch. mód)</a></li>
+        <li><a href="/kamene">Kamene</a></li>
+        <li><a href="/kamene/asynch">Kamene (asynch. mód)</a></li>
+        <li><a href="/pexeco">Pexeso</a></li>
+    </ul>
+</main>
+</body>
+</html>

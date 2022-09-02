@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout/layout.html}"
+        lang="us">
+<head>
+    <title>Registration</title>
+</head>
+
+<body>
+<main layout:fragment="content">
+<br>
+    <!--/*@thymesVar id="userController" typ?e="sk.tuke.gamestudio.server.controller.UserController"*/-->
+    <h3>Fill in your data below for registration</h3>
+    <br>
+
+    <form action="/registration/addNewPlayer" method="post">
+
+        <label for="fullName">Full name: (must start with letter and no more than 128 symbols)</label> <input id="fullName" type="text" name="fullName" pattern="[A-Za-z].+" maxlength="128" required/> <br />
+        <label for="selfEvaluation">Self evaluation: </label> <input id="selfEvaluation" type="number" min="1" max="10" step="1" name = "selfEvaluation" required/> <br/>
+
+        <label for="occupationStr">Choose your occupation: </label>
+        <select name="occupationStr">
+            <option th:each="occupation: ${listOccupation}" th:text="${occupation.getOccupation()}" input id="occupationStr"></option>
+        </select><br/>
+
+
+        <label for="countryStr">Choose your country: </label>
+        <select name="countryStr">
+            <option th:each="country: ${listCountry}" th:text="${country.getName()}" input id="countryStr"></option>
+
+        </select><br/>
+
+        <button type="submit">Submit</button>
+
+
+    </form>
+
+
+
+
+
+</main>
+</body>
+</html>

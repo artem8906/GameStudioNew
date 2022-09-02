@@ -1,0 +1,283 @@
+<!DOCTYPE HTML>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout/layout.html}"
+        lang="us">
+<head>
+
+    <title>Gamestudio - Kamene</title>
+</head>
+
+<body>
+
+<main layout:fragment="content">
+
+
+    <h2>Kamene</h2>
+
+    <div class="minesControl">
+        <h2><span id="gameStatus"></span></br></h2>
+        For moving kamene up, down, left or right use W, S, A or D on keyboard</br>
+        <br></br>
+        <button type="button" id="btNewGame" class="abutton" onclick="processNewGameClick()">New game</button>
+
+        </div>
+    </div>
+
+    <section id="kameneField"></section>
+
+    <section>
+        <h3>Best scores</h3>
+        <table class="scores">
+            <thead>
+            <tr>
+                <th>Place</th>
+                <th>Name</th>
+                <th>Score</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody id="scoresTableBody">
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h3>Comments</h3>
+        <table class="scores">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Comment</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody id="commentsTableBody">
+            </tbody>
+        </table>
+    </section>
+
+    <br/>
+    <div>
+        Average rating is <span id="averageRating"></span>
+    </div>
+
+    <script type="text/javascript">
+
+
+    const viewElements = {
+        kameneField: document.getElementById("kameneField"),
+        scoresTableBody:  document.getElementById("scoresTableBody"),
+        gameStatus:       document.getElementById("gameStatus"),
+        commentsTableBody:  document.getElementById("commentsTableBody"),
+        averageRating: document.getElementById("averageRating")
+    }
+
+    fetchGameFieldAndRenderAll("/kamene/json",viewElements);
+
+    fetchAndRenderBestScores("/api/score/kamene", viewElements);
+
+    fetchAndRenderComments("/api/comments/kamene", viewElements);
+
+    fetchAndRenderRating("/api/rating/kamene", viewElements);
+
+
+    document.addEventListener("keydown", function(event) {
+        if (event.code === "KeyS"){
+            // Handle "down"
+            fetchGameFieldAndRenderAll(
+                `/kamene/Jdown`,
+                viewElements);
+
+        } else if (event.code === "KeyW"){
+            // Handle "up"
+            fetchGameFieldAndRenderAll(
+                `/kamene/Jup`,
+                viewElements);
+        } else if (event.code === "KeyA"){
+            // Handle "left"
+            fetchGameFieldAndRenderAll(
+                `/kamene/Jleft`,
+                viewElements);
+        } else if (event.code === "KeyD"){
+            // Handle "right"
+            fetchGameFieldAndRenderAll(
+                `/kamene/Jrigth`,
+                viewElements);
+        }
+    }, true);
+
+
+    function processNewGameClick(){
+        fetchGameFieldAndRenderAll(
+            `/kamene/jsonnew`,
+            viewElements);
+    }
+
+
+    function fetchAndRenderRating(getJsonUrl, viewElements) {
+        fetch(getJsonUrl)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return Promise.reject(new Error(`Rating acquisition failed. Server answered with ${response.status}: ${response.statusText}.`));
+                }
+            })
+            .then(ratingData => {
+                viewElements.averageRating.innerHTML=ratingData;
+            })
+            .catch(error => {
+                errorMessage = "Failed to receive or display data about rating of game. More info: " + error;
+            });
+    }
+
+    function renderGameField(gameFieldData, viewElements) {
+
+        let htmlToRender="<table class='minefield'>\n";
+        for (let row = 0; row < gameFieldData.size; row++) {
+            htmlToRender+=" <tr>\n";
+            for (let col = 0; col < gameFieldData.size; col++) {
+                if ("${gameFieldData.tiles[row][col].value}"==0 ) {}
+                else {
+                    htmlToRender +=
+                        `<td>${getTileText(gameFieldData.tiles[row][col])}</td>`;
+                }
+
+            }
+        }
+        htmlToRender+="</table>\n";
+
+
+        viewElements.kameneField.innerHTML=htmlToRender;
+
+    }
+
+    function getTileText(tile) {
+        if (tile.value!=0) {
+            return tile.value;
+        }
+        else return "";
+    }
+
+
+    function fetchGameFieldAndRenderAll(getJsonUrl, viewElements) {
+        fetch(getJsonUrl)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return Promise.reject(new Error(`Game field acquisition failed. Server answered with ${response.status}: ${response.statusText}.`));
+                }
+            })
+            .then(gameFieldData => {
+
+                const newStatusMessage=getGameStatusMessage(gameFieldData);
+
+                if(viewElements.gameStatus.innerHTML != newStatusMessage){
+                    viewElements.gameStatus.innerHTML=newStatusMessage;
+                }
+
+                renderGameField(gameFieldData, viewElements);
+
+                if(gameFieldData.addscore){
+                    fetchAndRenderBestScores("/api/score/kamene",viewElements);
+                }
+
+
+            })
+            .catch(error => {
+                errorMessage = "Failed to receive or display gameField. More info: " + error;
+            });
+    }
+
+    function fetchAndRenderComments(getJsonUrl, viewElements) {
+        fetch(getJsonUrl)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return Promise.reject(new Error(`Comments acquisition failed. Server answered with ${response.status}: ${response.statusText}.`));
+                }
+            })
+            .then(commentsData => {
+                renderComments(commentsData, viewElements)
+            })
+            .catch(error => {
+                errorMessage = "Failed to receive or display data about comments of game. More info: " + error;
+            });
+    }
+
+    function renderComments(commentsData, viewElements) {
+        const commentsCount = commentsData.length;
+        let htmlToRender = "";
+        for (row = 0; row < commentsCount; row++) {
+            htmlToRender+=
+                `<tr>
+                <td>${commentsData[row].username}</td>
+                <td>${commentsData[row].comment}</td>
+                <td>${commentsData[row].commented_on}</td>
+                </tr>`
+            ;
+        }
+        viewElements.commentsTableBody.innerHTML=htmlToRender;
+    }
+
+
+    function fetchAndRenderBestScores (getJsonUrl, viewElements) {
+        fetch(getJsonUrl)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return Promise.reject(new Error(`Best scores acquisition failed. Server answered with ${response.status}: ${response.statusText}.`));
+                }
+            })
+            .then(bestScoresData => {
+                renderBestScores(bestScoresData, viewElements)
+            })
+            .catch(error => {
+                errorMessage = "Failed to receive or display data about the best scores. More info: " + error;
+            });
+    }
+
+    function renderBestScores(bestScoresData, viewElements) {
+        const rowCount = bestScoresData.length;
+        let htmlToRender = "";
+        for (row = 0; row < rowCount; row++) {
+            htmlToRender+=
+                `<tr>
+                <td>${row+1}</td>
+                <td>${bestScoresData[row].username}</td>
+                <td>${bestScoresData[row].points}</td>
+                <td>${bestScoresData[row].playedOn}</td>
+                </tr>`
+                ;
+        }
+        viewElements.scoresTableBody.innerHTML=htmlToRender;
+
+    }
+
+    function getGameStatusMessage(gameFieldData) {
+        let gameStatus = "";
+        if (gameFieldData.solved == true) {
+            gameStatus = "You win (score: " + gameFieldData.score + ")";
+        } else {
+            gameStatus = "Game is playing";
+        }
+
+        return gameStatus;
+    }
+
+
+
+    </script>
+
+
+
+</main>
+
+
+</body>
+</html>

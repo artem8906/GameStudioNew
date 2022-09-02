@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout/layout.html}"
+        lang="us">
+<head>
+    <!--    <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="author" content="Stefan Korecko" />
+        <link rel="stylesheet"
+              href="/css/mines.css"
+              media="screen" />-->
+
+
+    <title>Gamestudio - Minesweeper</title>
+</head>
+
+<body>
+
+<main layout:fragment="content">
+
+    <!--/*@thymesVar id="minesweeperController" type="sk.tuke.gamestudio.server.controller.MinesweeperController"*/-->
+
+    <h2>Minesweeper</h2>
+
+
+
+<!--    <span th:if="not ${@userController.isLogged()}">-->
+<!--    You logged in as <span th:text="${@userController.getLoggedUser()}"></span>-->
+<!--        </span>-->
+
+    <div class="minesControl">
+        <span th:text="${gameStatus}"></span>
+        <a th:if="${marking and isPlaying}"  class="abutton" href="/minesweeper/mark">To marking</a>
+        <a th:if=" ${not marking and isPlaying}" class="abutton" href="/minesweeper/mark">To opening</a>
+
+
+        <a  class="abutton" href="/minesweeper/new">New game</a>
+
+    </div>
+
+    <section>
+        <table class='minefield'>
+            <tr th:each="row: ${minesweeperField}">
+                <td th:each="tile: ${row}"
+                    th:attr="class=${@minesweeperController.getTileClass(tile)}">
+                    <a th:if="${isPlaying}" th:attr="href='/minesweeper?row='+${rowStat.index}+'&column='+${tileStat.index}">
+                        <span th:text="${@minesweeperController.getTileText(tile)}"></span>
+                    </a>
+
+                    <span th:if="not ${isPlaying}" th:text="${@minesweeperController.getTileText(tile)}"></span>
+
+                </td>
+            </tr>
+        </table>
+    </section>
+
+    <div th:if="${@userController.isLogged()}">
+        <form action="/minesweeper/comment" method="post">
+            <label for="comment">Comment:</label> <input id="comment" type="text" name = "comment" maxlength="255" required/><br/>
+            <button type="submit">Submit comment </button>
+        </form>
+    </div>
+
+    <form action="/minesweeper/rating" method="post">
+        <label for="rating"> Rating of game: </label>
+        <input id="rating" type="number" min="1" max="5" step="1" name = "rating" required/> <br/>
+        <button type="submit"> Submit rating </button>
+    </form>
+
+<div>
+    <table class="scores">
+        <caption>Best scores</caption>
+        <th>Player</th>
+        <th>Score</th>
+        <th>Date</th>
+
+        <tr th:each="score: ${bestScores}">
+            <td th:text="${score.getUsername()}">
+            <td th:text="${score.getPoints()}">
+            <td th:text="${score.getPlayedOn()}">
+            </td>
+        </tr>
+    </table>
+</div>
+
+    <div>
+        <table class="scores">
+            <caption>Comments</caption>
+            <th>Player</th>
+            <th>Comment</th>
+
+            <th>Date</th>
+
+            <tr th:each="comment: ${comments}">
+                <td th:text="${comment.getUsername()}">
+                <td th:text="${comment.getComment()}">
+                <td th:text="${comment.getCommented_on()}">
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div>
+Average rating is <span th:text="${avgRating}"></span>
+    </div>
+
+</main>
+
+</body>
+</html>
